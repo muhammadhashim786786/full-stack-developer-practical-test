@@ -143,40 +143,46 @@
 </head>
 
 <body>
-    <div style="display: flex; justify-content: center; margin-top: 1em; margin-bottom: 1em;">
-        <h1><span class="blue"></span>Products Table<span class="blue"></span></h1>
+    <div class="container">
+        <div style="display: flex; justify-content: center; margin-top: 1em; margin-bottom: 1em;">
+            <h1><span class="blue"></span>Products Table<span class="blue"></span></h1>
+        </div>
+        <div style="display: flex; justify-content: center; margin-bottom: 1em;">
+            <button id="add-product" type="button" class="btn btn-primary" data-toggle="modal"
+                data-target="#productModal" data-whatever="@mdo">
+                Add Product
+            </button>
+        </div>
+
+        <div id="products-info-message" class="alert alert-info">
+            <strong>No Products</strong> There is currently no Products captured
+        </div>
+
+        <table id="productsTable" class="container">
+            <thead>
+                <tr>
+                    <th style="width: 9em;">
+
+                    </th>
+                    <th>
+                        <h1>Name</h1>
+                    </th>
+                    <th>
+                        <h1>Description</h1>
+                    </th>
+                    <th>
+                        <h1>Price</h1>
+                    </th>
+                    <th>
+                        <h1>Date Actioned</h1>
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="data">
+            </tbody>
+        </table>
     </div>
-    <div style="display: flex; justify-content: center; margin-bottom: 1em;">
-        <button id="add-product" type="button" class="btn btn-primary" data-toggle="modal" data-target="#productModal"
-            data-whatever="@mdo">
-            Add Product
-        </button>
-    </div>
 
-    <table class="container">
-        <thead>
-            <tr>
-                <th style="width: 9em;">
-
-                </th>
-                <th>
-                    <h1>Name</h1>
-                </th>
-                <th>
-                    <h1>Description</h1>
-                </th>
-                <th>
-                    <h1>Price</h1>
-                </th>
-                <th>
-                    <h1>Date Actioned</h1>
-                </th>
-            </tr>
-        </thead>
-        <tbody id="data">
-
-        </tbody>
-    </table>
 
     <div class="modal fade" id="productModal" #productModal data-bs-backdrop="static" tabindex="-1" role="dialog"
         aria-labelledby="productModal" aria-hidden="true">
@@ -240,12 +246,14 @@
 </html>
 
 <script>
+    document.getElementById("products-info-message").style.setProperty('display', 'flex');
+    document.getElementById("productsTable").style.setProperty('display', 'none');
     var products = [];
     var productSelected;
     function getProducts() {
         document.getElementById("data").innerHTML = "";
 
-        fetch("https://full-stack-developer-practical-test.azurewebsites.net/Products/Products", {
+        fetch("https://localhost:44338/Products/Products", {
             "method": "POST",
             "body": JSON.stringify({ searchCriteria: "", pageNumber: 0, pageSize: 0, includeDeleted: false }),
             "headers": {
@@ -281,6 +289,14 @@
                 var deleteButton = document.getElementById(`delete-product-${x.id}`);
                 deleteButton.addEventListener("click", selectProduct.bind(null, x));
             });
+
+            if (products.length > 0) {
+                document.getElementById("products-info-message").style.setProperty('display', 'none');
+                document.getElementById("productsTable").style.setProperty('display', 'table');
+            } else {
+                document.getElementById("products-info-message").style.setProperty('display', 'flex');
+                document.getElementById("productsTable").style.setProperty('display', 'none');
+            }
         })
     }
 
@@ -302,7 +318,7 @@
         var productDescription = document.getElementById("product-description").value;
         var productPrice = document.getElementById("product-price").value;
 
-        fetch("https://full-stack-developer-practical-test.azurewebsites.net/Products/SaveProduct", {
+        fetch("https://localhost:44338/Products/SaveProduct", {
             "method": "POST",
             "body": JSON.stringify({ id: productSelected ? productSelected.id : generateUUID(), name: productName, description: productDescription, price: productPrice, deleted: false }),
             "headers": {
@@ -319,7 +335,7 @@
     }
 
     function deleteProduct() {
-        fetch(`https://full-stack-developer-practical-test.azurewebsites.net/Products/DeleteProduct/${productSelected.id}`, {
+        fetch(`https://localhost:44338/Products/DeleteProduct/${productSelected.id}`, {
             "method": "DELETE",
             "headers": {
                 "Access-Control-Allow-Origin": "*",
